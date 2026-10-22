@@ -1,0 +1,27 @@
+# Corpus + index — nooit in git (leeft in Drive-gesyncte map / is herbouwbaar)
+data/
+*.pdf
+*.lance
+lancedb/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+# uv.lock hoort WEL in git: die pint de versies zodat de pipeline reproduceerbaar blijft.
+
+# OS
+.DS_Store
+Thumbs.db

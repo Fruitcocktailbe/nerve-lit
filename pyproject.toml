@@ -1,0 +1,54 @@
+[project]
+name = "nerve-lit"
+version = "0.1.0"
+description = "Peripheral nerve surgery literature database — harvest, fetch, index, search"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "httpx>=0.28",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Fase 3 — index. Licht: embeddings lopen via Ollama, dus geen torch nodig.
+index = [
+    "pymupdf>=1.24",
+    "lancedb>=0.15",
+    "pyarrow>=17",
+]
+# Reranker draait wel lokaal in torch (~2.5 GB). Apart gehouden zodat je de
+# index kan bouwen zonder die download.
+rerank = [
+    "sentence-transformers>=3.0",
+    # torch expliciet vermelden: anders komt hij als transitieve dependency van
+    # sentence-transformers binnen en negeert uv de CUDA-index hieronder.
+    "torch>=2.6",
+]
+# Fase 4 — MCP-server voor JARVIS.
+mcp = [
+    "mcp>=1.2",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv]
+package = false
+
+# PyPI serveert op Windows een CPU-only torch. Reranken van 50 kandidaten kost
+# dan ~45 s in plaats van ~1 s op de RTX 3070 — te traag om JARVIS op te laten
+# wachten. Daarom expliciet de CUDA-wheels van PyTorch zelf.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cuda" }]
+
+[[tool.uv.index]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
